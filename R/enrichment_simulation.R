@@ -3,16 +3,16 @@
 #' Evaluating biomarkers for prognostic enrichment of clinical trials using simulated data
 #'
 #' @param baseline.event.rate  A number between 0 and 1 indicating the prevalence of the event in the study population.
-#' @param reduction.under.treatment A numer between 0 and 1 indicating the percent reduction in event rate under treatment that the trial should be able to detect with the specified power.
+#' @param reduction.under.treatment A number between 0 and 1 indicating the percent reduction in event rate under treatment that the trial should be able to detect with the specified power.
 #' @param estimated.auc A numeric vector, with each entry between 0.5 and 1, that specifies the AUC for each biomarker to use in simulations.
-#' @param cost.screening A positive number indicating the cost of screening a patient to determine trial eligiblity, This argument is optional; if both cost.screening and cost.keeping are specified, then then the total cost of the trial based on each screening threshold is estimated and returned.
+#' @param cost.screening A positive number indicating the cost of screening a patient to determine trial eligibility, This argument is optional; if both cost.screening and cost.keeping are specified, then then the total cost of the trial based on each screening threshold is estimated and returned.
 #' @param cost.keeping A positive number indicating the cost of retaining a patient in the trial after enrolling. This argument is optional; if both cost.screening and cost.keeping are specified, then then the total cost of the trial based on each screening threshold is estimated and returned.
 #' @param roc.type A character vector with the same length as the estimated.auc argument. Each entry must be one of "symmetric", "right.shifted", or "left.shifted", which describes the general shape of the ROC curve to use for simulated data. Defaults to "symmetric" for each biomarker.
 #' @param simulation.sample.size A positive number giving the sample size to use for simulated data. Defaults to 500,000 (to help see trends).
-#' @param power desired power the trial should have to reject the null hypothesis that the outcome probability in the treatment group is greater than or equal to the outcome probability in the control group, between 0 and 1 (exclusive). Defaults to 0.9
-#' @param alpha desired Type I error rate for testing the null hypothesis that the outcome probability in the treatment group is greater than or equal to the outcome probability in the control group, between 0 and 1 (exclusive). Defaults to 0.025.
-#' @param alternative Form of alternative hypothesis, either "one.sided" or "two.sided". Defaults to "one.sided".
-#' @param n.biomarker.quantiles an integer specifying how many evenly spaced quantiles of the biomarker measured in controls will be used to screen trial participants. Defaults to 20
+#' @param power Number between 0 and 1 giving the power the trial should have to reject the null hypothesis that there is no treatment effect. Defaults to 0.9.
+#' @param alpha Number between 0 and 1 giving the type I error rate for testing the null hypothesis that there is no treatment effect.  Defaults to 0.025.
+#' @param alternative Character specifying whether the alternative hypothesis is one-sided (``one.sided'') with a higher outcome probability in the treatment group or two-sided (``two.sided''). Defaults to ``one.sided''.
+#' @param selected.biomarker.quantiles Numeric vector specifying the quantiles of the biomarker measured in controls that will be used to screen trial participants. Defaults to 0, 5, ..., 95. All entries must be between at least 0 and less than 001.
 #' @return A list with components
 #' \itemize{
 #'   \item estimates: A data frame with the following summary measures for each biomarker threshold that is used to screen trial participants: `selected.biomarker.quantiles': quantiles of observed biomarker values used for screening. `biomarker.screening.thresholds': the values of the biomarker corresponding to the quantiles, `event.rate': post-screening event rate, `NNS': The estimated number of patients needed to screen to identify one patient eligible for the trial, `SS': The sample size in a clinical trial enrolling only patients whose biomarker-based disease risk is above the level used for screening, `N.screen': The total number of individuals whose biomarker values are screened to determine whether they should be enrolled in the trial, `N.screen.increase.percentage': Percentage in N.screen relative to a trail that does not based on the biomarker. `total.cost': The estimated total cost of running the trial if the biomarker were used for prognostic enrichment (if cost.screening and cost.keeping are specified), `cost.reduction.percentage': The reduction in total cost relative to a trial that does not screen based on the biomarker. `Biomarker': label for the biomarker. 
@@ -47,7 +47,7 @@ enrichment_simulation <- function(baseline.event.rate,
                                    alternative=c("one.sided", "two.sided"),
                                    power=0.9,
                                    alpha=0.025,
-                                   n.biomarker.quantiles=20) {
+                                   selected.biomarker.quantiles=seq(from=0, to=95, by=5)) {
 
     #############
     ## Check arguments ##
@@ -80,7 +80,6 @@ enrichment_simulation <- function(baseline.event.rate,
             stop("each entry of the roc.type argument needs to be either symmetric, right.shifted, or left.shifted")
         }
     }
-    stopifnot(class(n.biomarker.quantiles) %in% c("numeric", "integer"))
     updated.roc.type <- roc.type[!is.na(estimated.auc)]
     alternative <- match.arg(alternative)
     stopifnot(is.numeric(power))
@@ -93,6 +92,9 @@ enrichment_simulation <- function(baseline.event.rate,
     if (!(reduction.under.treatment > 0 & reduction.under.treatment < 1)) {
         stop("reduction.under.treatment should be between 0 and 1")
     }
+    if (!all(selected.biomarker.quantiles >= 0 & selected.biomarker.quantiles < 100)) {
+        stop("quantiles of the biomarker measured in controls must be at least 0 and less than 100")
+    }
     if (simulation.sample.size < 0) {
         stop("simulation.sample.size should be a positive number")
     }
@@ -102,12 +104,11 @@ enrichment_simulation <- function(baseline.event.rate,
     for (i in 1:n.auc) {
         simulation.data <- user_auc_and_roc_type_to_data(N=N, baseline.event.rate=baseline.event.rate,
                                                                                 auc=updated.auc[i], roc.type=updated.roc.type[i],
-                                                                                n.biomarker.quantiles=n.biomarker.quantiles)
+                                                                                selected.biomarker.quantiles=selected.biomarker.quantiles / 100)
         roc.data <- user_auc_to_plots(auc=updated.auc[i], baseline.event.rate=baseline.event.rate, roc.type=updated.roc.type[i], prototypical=FALSE)
         biomarker <- simulation.data$biomarker
         response <- simulation.data$response
-        biomarker.screening.thresholds <- simulation.data$biomarker.screening.thresholds
-        selected.biomarker.quantiles <- simulation.data$selected.biomarker.quantiles * 100
+        biomarker.screening.thresholds <- quantile(biomarker, prob=selected.biomarker.quantiles / 100)
         if (updated.roc.type[i] %in% c("symmetric", "left.shifted")) {
             NNS <- sapply(biomarker.screening.thresholds, function(x) N / sum(biomarker > x))
             event.rate <- sapply(biomarker.screening.thresholds, function(x) sum(response[biomarker > x]) / sum(biomarker > x))
@@ -162,10 +163,9 @@ enrichment_simulation <- function(baseline.event.rate,
     return(list("simulation"=TRUE, "estimates"=estimates.check,"roc.data"=roc.data.check))
 }
 
-user_auc_and_roc_type_to_data <- function(N, baseline.event.rate, auc, roc.type, n.biomarker.quantiles) {
+user_auc_and_roc_type_to_data <- function(N, baseline.event.rate, auc, roc.type, selected.biomarker.quantiles) {
     if (roc.type == "right.shifted") {
         # need to flip case/control labels and eventually call a test "positive" if it is below the threshold, rather than above
-        selected.biomarker.quantiles <- seq(from=0, to=0.95, length.out=n.biomarker.quantiles)      
         response <- rbinom(n=N, size=1, prob=baseline.event.rate)
         biomarker <- numeric(N)
         biomarker[response == 1] <- rlomax(n=sum(response==1), scale=1, shape3.q=1)
@@ -173,7 +173,6 @@ user_auc_and_roc_type_to_data <- function(N, baseline.event.rate, auc, roc.type,
         biomarker.screening.thresholds <- quantile(-biomarker, prob=selected.biomarker.quantiles)
     }
     if (roc.type == "symmetric") {
-        selected.biomarker.quantiles <- seq(from=0, to=0.95, length.out=n.biomarker.quantiles)
         response <- rbinom(n=N, size=1, prob=baseline.event.rate)
         sd.cases <- 1
         b <- 1 / sd.cases
@@ -184,7 +183,6 @@ user_auc_and_roc_type_to_data <- function(N, baseline.event.rate, auc, roc.type,
         biomarker[response == 0] <- rnorm(n=sum(response==0), mean=0, sd=1)
         biomarker.screening.thresholds <- quantile(biomarker, prob=selected.biomarker.quantiles)
     } else if (roc.type == "left.shifted") {
-        selected.biomarker.quantiles <- seq(from=0, to=0.95, length.out=n.biomarker.quantiles)
         response <- rbinom(n=N, size=1, prob=baseline.event.rate)
         biomarker <- numeric(N)
         biomarker[response == 0] <- rlomax(n=sum(response==0), scale=1, shape3.q=1)

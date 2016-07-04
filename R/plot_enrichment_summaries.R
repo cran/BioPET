@@ -1,24 +1,29 @@
 #' Plotting Prognostic Enrichment Estimates
 #'
 #' Plot summaries of prognostic enrichment of clinical trials estimated by the \code{\link{enrichment_analysis}} and \code{\link{enrichment_simulation}} functions.
-#' @param x the object returned by either the \code{\link{enrichment_analysis}} or the \code{\link{enrichment_simulation}} function.
+#' @param x Object returned by either the \code{\link{enrichment_analysis}} or the \code{\link{enrichment_simulation}} function.
 #' @param text.size.x.axis Size of text for the x-axis of plots. Defaults to 10.
 #' @param text.size.y.axis Size of text for the y-axis of plots. Defaults to 10.
 #' @param text.size.plot.title Size of text for the plot titles. Defaults to 10.
 #' @param text.size.axis.ticks Size of axis tick marks for plots. Defaults to 10.
 #' @param annotate.no.screening.cost Logical indicating whether to annotate the relative to total cost curve at the point where no biomarker screening occurs. Defaults to FALSE
-#' @param smooth.roc  Logical indiciating whether the ROC curves (plotting with the roc() function in the `pROC' package) should be smoothed. Defaults to TRUE.
+#' @param smooth.roc  Logical indicating whether the ROC curves (plotting with the roc() function in the `pROC' package) should be smoothed. Defaults to TRUE.
 #' @return A grid of either 4 or 6 plots, summarizing the results of either the \code{\link{enrichment_analysis}} or the \code{\link{enrichment_simulation}} function.
 #' @seealso \code{\link{enrichment_analysis}}, \code{\link{enrichment_simulation}}
 #' @examples
 #' 
 #' data(dcaData)
+#' # one marker
 #' analysis.single.marker <- enrichment_analysis(Cancer ~ Marker1,
 #' data=dcaData,
+#' reduction.under.treatment=0.3,
 #' cost.screening=100, cost.keeping=1000)
 #' plot_enrichment_summaries(analysis.single.marker)
+#'
+#' # two markers
 #' analysis.two.markers <- enrichment_analysis(Cancer ~ Marker1 + Marker2,
 #' data=dcaData,
+#' reduction.under.treatment=0.3,
 #' cost.screening=100,
 #' cost.keeping=1000)
 #' plot_enrichment_summaries(analysis.two.markers)

@@ -5,33 +5,35 @@
 \title{Prognostic Enrichment with Real Data}
 \usage{
 enrichment_analysis(formula, data, family = binomial(link = logit),
-  cost.screening = NULL, cost.keeping = NULL, do.bootstrap = TRUE,
-  n.bootstraps = 1000, smooth.roc = FALSE, power = 0.9, alpha = 0.025,
-  reduction.under.treatment = 0.3, selected.biomarker.quantiles = seq(from =
-  0, to = 0.95, by = 0.05))
+  reduction.under.treatment, cost.screening = NULL, cost.keeping = NULL,
+  do.bootstrap = TRUE, n.bootstrap = 1000, smooth.roc = FALSE,
+  power = 0.9, alpha = 0.025, alternative = c("one.sided", "two.sided"),
+  selected.biomarker.quantiles = seq(from = 0, to = 0.95, by = 0.05))
 }
 \arguments{
 \item{formula}{Object of class "formula", in the form "outcome ~ predictors", where the outcome is a binary indicator with a value of 1 in cases and a value of 0 in controls.}
 
-\item{data}{Data frame containing the outome and predictors specified in formula. Observations with a missing alue of the outcome or of any predictor are dropped.}
+\item{data}{Data frame containing the outcome and predictors specified in the ``formula'' argument. Observations with a missing value of the outcome or of any predictor are dropped.}
 
-\item{family}{Character object or call to the family() function specifying the link function that is passed to 'glm' to estimate a risk score when more than one predictor is specified. Defaults to binomial(link = "logit"), which yields logistic regression. Defaults to the logit link function to give logistic regression.}
+\item{family}{Character object or call to the family() function specifying the link function that is passed to 'glm' to estimate a risk score when more than one predictor is specified. Defaults to binomial(link = "logit"), which yields logistic regression.}
 
-\item{cost.screening}{Number indicating the cost of screening a patient to determine trial eligiblity, This argument is optional; if both cost.screening and cost.keeping are specified, then the total cost of the trial based on each screening threshold is estimated and returned.}
+\item{reduction.under.treatment}{Number between 0 and 1 indicating the percent reduction in event rate under treatment that the trial should be able to detect with the specified power}
 
-\item{cost.keeping}{Number indicating the cost of retaining a patient in the trial after enrolling. This argument is optional; if both cost.screening and cost.keeping are specified, then the total cost of the trial based on each screening threshold is estimated and returned.}
+\item{cost.screening}{Number indicating the cost of screening a patient to determine trial eligibility, This argument is optional; if both the ``cost.screening'' and ``cost.keeping'' arguments are specified, then the total cost of the trial based on each screening threshold is estimated and returned.}
 
-\item{do.bootstrap}{Logical indicating whether bootstrap 95\% confidence intervals should be computed when a dataset is specified. Defaults to TRUE.}
+\item{cost.keeping}{Number indicating the cost of retaining a patient in the trial after enrolling. This argument is optional; if both the ``cost.screening'' and ``cost.keeping'' arguments are specified, then the total cost of the trial based on each screening threshold is estimated and returned.}
 
-\item{n.bootstraps}{Integer indicating how many bootstrap resamples to use if do.bootstrap is TRUE. Defaults to 1000.}
+\item{do.bootstrap}{Logical indicating whether bootstrap 95\% confidence intervals should be computed. Defaults to TRUE.}
 
-\item{smooth.roc}{Logical indicating the ``smooth'' argument passed to the roc() function from the `pROC' package when the ``data'' argument is specified and a single biomarker is given.}
+\item{n.bootstrap}{Number of bootstrap samples to draw, if ``do.bootstrap'' is set to TRUE. Defaults to 1000.}
 
-\item{power}{Desired power the trial should have to reject the null hypothesis that the outcome probability in the treatment group is greater than or equal to the outcome probability in the control group, between 0 and 1 (exclusive). Defaults to 0.9.}
+\item{smooth.roc}{Logical indicating the ``smooth'' argument passed to the roc() function from the `pROC' package when a single biomarker is given. Defaults to FALSE.}
 
-\item{alpha}{Desired Type I error rate for testing the null hypothesis that the outcome probability in the treatment group is greater than or equal to the outcome probability in the control group, between 0 and 1 (exclusive). Defaults to 0.025.}
+\item{power}{Number between 0 and 1 giving the power the trial should have to reject the null hypothesis that there is no treatment effect. Defaults to 0.9.}
 
-\item{reduction.under.treatment}{Percent reduction in event rate under treatment that the trial should be able to detect with the specified power, between 0 and 1 (exclusive). Defailts to 0.3.}
+\item{alpha}{Number between 0 and 1 giving the type I error rate for testing the null hypothesis that there is no treatment effect.  Defaults to 0.025.}
+
+\item{alternative}{Character specifying whether the alternative hypothesis is one-sided with a higher event rate in the treatment group (``one.sided'') or two-sided (``two.sided''). Defaults to ``one.sided''.}
 
 \item{selected.biomarker.quantiles}{Numeric vector specifying the quantiles of the biomarker measured in controls that will be used to screen trial participants. Defaults to 0, 0.05, ..., 0.95. All entries must be between at least 0 and less than 1.}
 }
@@ -40,9 +42,9 @@ A list with components
 \itemize{
   \item estimates: A data frame with the following summary measures for each biomarker threshold that is used to screen trial participants: `selected.biomarker.quantiles': quantiles of observed biomarker values used for screening. `biomarker.screening.thresholds': the values of the biomarker corresponding to the quantiles, `event.rate': post-screening event rate, `NNS': The estimated number of patients needed to screen to identify one patient eligible for the trial, `SS': The sample size in a clinical trial enrolling only patients whose biomarker-based disease risk is above the level used for screening, `N.screen': The total number of individuals whose biomarker values are screened to determine whether they should be enrolled in the trial, `N.screen.increase.percentage': Percentage in N.screen relative to a trail that does not based on the biomarker. `total.cost': The estimated total cost of running the trial if the biomarker were used for prognostic enrichment (if cost.screening and cost.keeping are specified), `cost.reduction.percentage': The reduction in total cost relative to a trial that does not screen based on the biomarker. 
   \item estimates.min.total.cost: The row of the estimates data frame corresponding the screening strategy that results in the lowest total cost.
-  \item bootstrap.CIs: 95\% boostrap-based CIs for reported summray measures (if do.bootstrap=TRUE).
+  \item bootstrap.CIs: 95\% bootstrap-based CIs for reported summary measures (if do.bootstrap=TRUE).
   \item simulation: A logical indicating whether data were simulated.
-  \item bootstrap.CIs: 95\% boostrap-based CIs for reported summray measures (if do.bootstrap=TRUE).
+  \item bootstrap.CIs: 95\% bootstrap-based CIs for reported summary measures (if do.bootstrap=TRUE).
   \item biomarker: Biomarker from the given dataset, either the single biomarker specified or the predicted values from logistic regression if multiple biomarkers are specified).
   \item response: Response variable specified in the dataset.
 }
@@ -56,6 +58,7 @@ data(dcaData)
 ## using a single biomarker in the dataset
 analysis.single.marker <- enrichment_analysis(Cancer ~ Marker1,
 data=dcaData,
+reduction.under.treatment=0.3,
 cost.screening=100,
 cost.keeping=1000)
 head(analysis.single.marker$estimates)
@@ -64,6 +67,7 @@ head(analysis.single.marker$bootstrap.CIs)
 ## combining two biomarkers in the dataset
 analysis.two.markers <- enrichment_analysis(Cancer ~ Marker1 + Marker2,
 data=dcaData,
+reduction.under.treatment=0.3,
 cost.screening=100,
 cost.keeping=1000)
 head(analysis.two.markers$estimates)

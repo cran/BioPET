@@ -8,30 +8,30 @@ enrichment_simulation(baseline.event.rate, reduction.under.treatment,
   estimated.auc, roc.type = NULL, cost.screening = NULL,
   cost.keeping = NULL, simulation.sample.size = 5e+05,
   alternative = c("one.sided", "two.sided"), power = 0.9, alpha = 0.025,
-  n.biomarker.quantiles = 20)
+  selected.biomarker.quantiles = seq(from = 0, to = 95, by = 5))
 }
 \arguments{
 \item{baseline.event.rate}{A number between 0 and 1 indicating the prevalence of the event in the study population.}
 
-\item{reduction.under.treatment}{A numer between 0 and 1 indicating the percent reduction in event rate under treatment that the trial should be able to detect with the specified power.}
+\item{reduction.under.treatment}{A number between 0 and 1 indicating the percent reduction in event rate under treatment that the trial should be able to detect with the specified power.}
 
 \item{estimated.auc}{A numeric vector, with each entry between 0.5 and 1, that specifies the AUC for each biomarker to use in simulations.}
 
 \item{roc.type}{A character vector with the same length as the estimated.auc argument. Each entry must be one of "symmetric", "right.shifted", or "left.shifted", which describes the general shape of the ROC curve to use for simulated data. Defaults to "symmetric" for each biomarker.}
 
-\item{cost.screening}{A positive number indicating the cost of screening a patient to determine trial eligiblity, This argument is optional; if both cost.screening and cost.keeping are specified, then then the total cost of the trial based on each screening threshold is estimated and returned.}
+\item{cost.screening}{A positive number indicating the cost of screening a patient to determine trial eligibility, This argument is optional; if both cost.screening and cost.keeping are specified, then then the total cost of the trial based on each screening threshold is estimated and returned.}
 
 \item{cost.keeping}{A positive number indicating the cost of retaining a patient in the trial after enrolling. This argument is optional; if both cost.screening and cost.keeping are specified, then then the total cost of the trial based on each screening threshold is estimated and returned.}
 
 \item{simulation.sample.size}{A positive number giving the sample size to use for simulated data. Defaults to 500,000 (to help see trends).}
 
-\item{alternative}{Form of alternative hypothesis, either "one.sided" or "two.sided". Defaults to "one.sided".}
+\item{alternative}{Character specifying whether the alternative hypothesis is one-sided (``one.sided'') with a higher outcome probability in the treatment group or two-sided (``two.sided''). Defaults to ``one.sided''.}
 
-\item{power}{desired power the trial should have to reject the null hypothesis that the outcome probability in the treatment group is greater than or equal to the outcome probability in the control group, between 0 and 1 (exclusive). Defaults to 0.9}
+\item{power}{Number between 0 and 1 giving the power the trial should have to reject the null hypothesis that there is no treatment effect. Defaults to 0.9.}
 
-\item{alpha}{desired Type I error rate for testing the null hypothesis that the outcome probability in the treatment group is greater than or equal to the outcome probability in the control group, between 0 and 1 (exclusive). Defaults to 0.025.}
+\item{alpha}{Number between 0 and 1 giving the type I error rate for testing the null hypothesis that there is no treatment effect.  Defaults to 0.025.}
 
-\item{n.biomarker.quantiles}{an integer specifying how many evenly spaced quantiles of the biomarker measured in controls will be used to screen trial participants. Defaults to 20}
+\item{selected.biomarker.quantiles}{Numeric vector specifying the quantiles of the biomarker measured in controls that will be used to screen trial participants. Defaults to 0, 5, ..., 95. All entries must be between at least 0 and less than 001.}
 }
 \value{
 A list with components

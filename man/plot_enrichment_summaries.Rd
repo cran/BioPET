@@ -9,7 +9,7 @@ plot_enrichment_summaries(x, text.size.x.axis = 10, text.size.y.axis = 10,
   annotate.no.screening.cost = FALSE, smooth.roc = TRUE)
 }
 \arguments{
-\item{x}{the object returned by either the \code{\link{enrichment_analysis}} or the \code{\link{enrichment_simulation}} function.}
+\item{x}{Object returned by either the \code{\link{enrichment_analysis}} or the \code{\link{enrichment_simulation}} function.}
 
 \item{text.size.x.axis}{Size of text for the x-axis of plots. Defaults to 10.}
 
@@ -21,7 +21,7 @@ plot_enrichment_summaries(x, text.size.x.axis = 10, text.size.y.axis = 10,
 
 \item{annotate.no.screening.cost}{Logical indicating whether to annotate the relative to total cost curve at the point where no biomarker screening occurs. Defaults to FALSE}
 
-\item{smooth.roc}{Logical indiciating whether the ROC curves (plotting with the roc() function in the `pROC' package) should be smoothed. Defaults to TRUE.}
+\item{smooth.roc}{Logical indicating whether the ROC curves (plotting with the roc() function in the `pROC' package) should be smoothed. Defaults to TRUE.}
 }
 \value{
 A grid of either 4 or 6 plots, summarizing the results of either the \code{\link{enrichment_analysis}} or the \code{\link{enrichment_simulation}} function.
@@ -32,12 +32,17 @@ Plot summaries of prognostic enrichment of clinical trials estimated by the \cod
 \examples{
 
 data(dcaData)
+# one marker
 analysis.single.marker <- enrichment_analysis(Cancer ~ Marker1,
 data=dcaData,
+reduction.under.treatment=0.3,
 cost.screening=100, cost.keeping=1000)
 plot_enrichment_summaries(analysis.single.marker)
+
+# two markers
 analysis.two.markers <- enrichment_analysis(Cancer ~ Marker1 + Marker2,
 data=dcaData,
+reduction.under.treatment=0.3,
 cost.screening=100,
 cost.keeping=1000)
 plot_enrichment_summaries(analysis.two.markers)
