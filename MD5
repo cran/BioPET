@@ -1,11 +1,11 @@
-172a966a28ed007461a1af426906e1a5 *DESCRIPTION
+9645beb5096576cbac1c9e267296fd92 *DESCRIPTION
 ec1afea2c70d20e155b6df0cd5bc35dd *NAMESPACE
 eaa2e4c482c60653d0fdf395a4584e02 *R/data.R
 a8f3b4d4d33e262b51c923522f87f400 *R/enrichment_analysis.R
 e00b1cb064994389d2b505039a8f138f *R/enrichment_simulation.R
 92ed4e71452a5583d3cc32d998349428 *R/plot_enrichment_summaries.R
 f5512c0c74804dc346c5fd0819e38489 *R/sample_size.R
-2d375ecd9dbdd532cc1e8cd9bf825eee *data/dcaData.rda
+d3359dfce24106acb678a375a115252c *data/dcaData.rda
 696efe3365d5b55b62775a553005b4eb *man/dcaData.Rd
 f9dc72f94b120f56501331e77addd486 *man/enrichment_analysis.Rd
 2ab206bb8f25764e1a6d4fc6ca1da5ed *man/enrichment_simulation.Rd

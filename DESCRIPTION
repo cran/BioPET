@@ -1,7 +1,7 @@
 Package: BioPET
 Title: Biomarker Prognostic Enrichment Tool
-Version: 0.2.0
-Date: 2016-07-02
+Version: 0.2.1
+Date: 2017-02-17
 Authors@R: c(person("Jeremy", "Roth", email = "jhroth@uw.edu", role=c("cre", "aut")),
                    person("Kathleen", "F. Kerr", email = "katiek@uw.edu", role="aut"),
                    person("Kehao", "Zhu", email = "zhukehao@uw.edu", role="aut"))
@@ -11,10 +11,10 @@ License: GPL (>= 2)
 LazyData: true
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2016-07-02 21:08:14 UTC; jeremy
+Packaged: 2017-02-17 19:27:03 UTC; jeremy
 Author: Jeremy Roth [cre, aut],
   Kathleen F. Kerr [aut],
   Kehao Zhu [aut]
 Maintainer: Jeremy Roth <jhroth@uw.edu>
 Repository: CRAN
-Date/Publication: 2016-07-04 20:37:10
+Date/Publication: 2017-02-17 22:15:12
