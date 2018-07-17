@@ -58,4 +58,3 @@ head(simulation.three.markers$estimates)
 \seealso{
 \code{\link{enrichment_analysis}}, \code{\link{plot_enrichment_summaries}}
 }
-

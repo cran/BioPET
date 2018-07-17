@@ -69,6 +69,7 @@ plot_enrichment_summaries <- function(x,
             labs(x="FPR (%)", y="TPR (%)") +
             ggtitle("ROC Curve for Specified Biomarker")
     }
+    theme_update(plot.title=element_text(hjust=0.5))
     plot.ROC <- plot.ROC + expand_limits(y=0) +
         theme(axis.title.x = element_text(size=text.size.x.axis)) +
         theme(axis.title.y = element_text(size=text.size.y.axis)) +

@@ -3,7 +3,7 @@
 #' Evaluating biomarkers for prognostic enrichment of clinical trials using real data
 #'
 #' @param formula Object of class "formula", in the form "outcome ~ predictors", where the outcome is a binary indicator with a value of 1 in cases and a value of 0 in controls.
-#' @param data Data frame containing the outcome and predictors specified in the ``formula'' argument. Observations with a missing value of the outcome or of any predictor are dropped. 
+#' @param data Data frame containing the outcome and predictors specified in the ``formula'' argument. Observations with a missing value of the outcome or of any predictor are dropped.
 #' @param family Character object or call to the family() function specifying the link function that is passed to 'glm' to estimate a risk score when more than one predictor is specified. Defaults to binomial(link = "logit"), which yields logistic regression.
 #' @param reduction.under.treatment Number between 0 and 1 indicating the percent reduction in event rate under treatment that the trial should be able to detect with the specified power
 #' @param cost.screening Number indicating the cost of screening a patient to determine trial eligibility, This argument is optional; if both the ``cost.screening'' and ``cost.keeping'' arguments are specified, then the total cost of the trial based on each screening threshold is estimated and returned.
@@ -17,7 +17,7 @@
 #' @param selected.biomarker.quantiles Numeric vector specifying the quantiles of the biomarker measured in controls that will be used to screen trial participants. Defaults to 0, 0.05, ..., 0.95. All entries must be between at least 0 and less than 1.
 #' @return A list with components
 #' \itemize{
-#'   \item estimates: A data frame with the following summary measures for each biomarker threshold that is used to screen trial participants: `selected.biomarker.quantiles': quantiles of observed biomarker values used for screening. `biomarker.screening.thresholds': the values of the biomarker corresponding to the quantiles, `event.rate': post-screening event rate, `NNS': The estimated number of patients needed to screen to identify one patient eligible for the trial, `SS': The sample size in a clinical trial enrolling only patients whose biomarker-based disease risk is above the level used for screening, `N.screen': The total number of individuals whose biomarker values are screened to determine whether they should be enrolled in the trial, `N.screen.increase.percentage': Percentage in N.screen relative to a trail that does not based on the biomarker. `total.cost': The estimated total cost of running the trial if the biomarker were used for prognostic enrichment (if cost.screening and cost.keeping are specified), `cost.reduction.percentage': The reduction in total cost relative to a trial that does not screen based on the biomarker. 
+#'   \item estimates: A data frame with the following summary measures for each biomarker threshold that is used to screen trial participants: `selected.biomarker.quantiles': quantiles of observed biomarker values used for screening. `biomarker.screening.thresholds': the values of the biomarker corresponding to the quantiles, `event.rate': post-screening event rate, `NNS': The estimated number of patients needed to screen to identify one patient eligible for the trial, `SS': The sample size in a clinical trial enrolling only patients whose biomarker-based disease risk is above the level used for screening, `N.screen': The total number of individuals whose biomarker values are screened to determine whether they should be enrolled in the trial, `N.screen.increase.percentage': Percentage in N.screen relative to a trail that does not based on the biomarker. `total.cost': The estimated total cost of running the trial if the biomarker were used for prognostic enrichment (if cost.screening and cost.keeping are specified), `cost.reduction.percentage': The reduction in total cost relative to a trial that does not screen based on the biomarker.
 #'   \item estimates.min.total.cost: The row of the estimates data frame corresponding the screening strategy that results in the lowest total cost.
 #'   \item bootstrap.CIs: 95\% bootstrap-based CIs for reported summary measures (if do.bootstrap=TRUE).
 #'   \item simulation: A logical indicating whether data were simulated.
@@ -38,7 +38,7 @@
 #' cost.keeping=1000)
 #' head(analysis.single.marker$estimates)
 #' head(analysis.single.marker$bootstrap.CIs)
-#' 
+#'
 #' ## combining two biomarkers in the dataset
 #' analysis.two.markers <- enrichment_analysis(Cancer ~ Marker1 + Marker2,
 #' data=dcaData,
@@ -56,7 +56,7 @@ enrichment_analysis <- function(formula,
                                    cost.keeping=NULL,
                                    do.bootstrap=TRUE,
                                    n.bootstrap=1000,
-                                   smooth.roc=FALSE, 
+                                   smooth.roc=FALSE,
                                    power=0.9,
                                    alpha=0.025,
                                    alternative=c("one.sided", "two.sided"),
@@ -104,7 +104,7 @@ enrichment_analysis <- function(formula,
         if (count.vars == 2) {
             biomarker.name <- formula.vars[2]
             biomarker <- data[, biomarker.name]
-            my.roc <- do.call(what=roc, args=list("formula"=formula, "data"=data, "smooth"=smooth.roc))          
+            my.roc <- do.call(what=roc, args=list("formula"=formula, "data"=data, "smooth"=smooth.roc))
         } else if (count.vars > 2) {
             glm.multiple.markers <- do.call(what=glm, args=list("formula"=formula, "data"=data, "family"=family))
             biomarker <- predict(glm.multiple.markers, type="response")
@@ -124,15 +124,15 @@ enrichment_analysis <- function(formula,
         event.rate <- sapply(biomarker.screening.thresholds, function(x) sum(response[biomarker > x]) / sum(biomarker > x))
     }
     SS <- sample_size(event.rate=event.rate, reduction.under.treatment=reduction.under.treatment, alpha=alpha, power=power)
-    N.screen <- SS * NNS 
+    N.screen <- SS * NNS
     N.screen.increase.percentage <- ((N.screen - N.screen[1]) / N.screen[1]) * 100
     if (!is.null(cost.screening) & !is.null(cost.keeping)) {
-        total.cost <- SS * (cost.keeping + cost.screening * NNS)  
-        total.cost[1] <- SS[1] * cost.keeping 
+        total.cost <- SS * (cost.keeping + cost.screening * NNS)
+        total.cost[1] <- SS[1] * cost.keeping
         cost.reduction.percentage <- ((total.cost[1] - total.cost) / total.cost[1]) * 100
-        total.cost.no.screening <- cost.keeping * SS[1] 
+        total.cost.no.screening <- cost.keeping * SS[1]
         ind.min.total.cost <- which.min(total.cost)
-    } 
+    }
     # also allow for bootstrap to estimate standard errors
     if (do.bootstrap == TRUE) {
         n.quantiles <- length(biomarker.screening.thresholds)
@@ -163,7 +163,7 @@ enrichment_analysis <- function(formula,
                 if (zero.event.rates > 0) {
                     zero.event.rate.count <- zero.event.rate.count + 1
                 }
-            }      
+            }
             NNS.boot[, b] <- sapply(biomarker.screening.thresholds.boot, function(x) N / sum(biomarker.boot > x))
             SS.boot[, b] <- sample_size(event.rate=event.rate.boot[, b], reduction.under.treatment=reduction.under.treatment, alpha=alpha, power=power)
             N.screen.boot[, b] <- SS.boot[, b] * NNS.boot[, b] # total number of patients needed to be screened
@@ -209,7 +209,7 @@ enrichment_analysis <- function(formula,
             estimates <- as.data.frame(cbind(selected.biomarker.quantiles, biomarker.screening.thresholds, event.rate, NNS, SS, N.screen, N.screen.increase.percentage, total.cost, cost.reduction.percentage), row.names=NULL)
             estimates$selected.biomarker.quantiles <- estimates$selected.biomarker.quantiles * 100
             rownames(estimates) <- NULL
-            bootstrap.CIs <- as.data.frame(cbind(boot.ci.event.rate, boot.ci.NNS, boot.ci.SS, boot.ci.N.screen, boot.ci.N.screen, boot.ci.N.screen.increase.percentage, boot.ci.total.cost, boot.ci.cost.reduction.percentage))
+            bootstrap.CIs <- as.data.frame(cbind(boot.ci.event.rate, boot.ci.NNS, boot.ci.SS, boot.ci.N.screen, boot.ci.N.screen.increase.percentage, boot.ci.total.cost, boot.ci.cost.reduction.percentage))
             return(list("biomarker"=biomarker, "response"=response, "simulation"=FALSE, "estimates"=estimates, "bootstrap.CIs"=bootstrap.CIs, "estimates.min.total.cost"=estimates[ind.min.total.cost, ]))
         } else {
             estimates <- as.data.frame(cbind(selected.biomarker.quantiles, biomarker.screening.thresholds, event.rate, NNS, SS, N.screen, N.screen.increase.percentage), row.names=NULL)

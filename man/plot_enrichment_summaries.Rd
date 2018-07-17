@@ -50,4 +50,3 @@ plot_enrichment_summaries(analysis.two.markers)
 \seealso{
 \code{\link{enrichment_analysis}}, \code{\link{enrichment_simulation}}
 }
-
